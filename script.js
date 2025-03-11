@@ -1,10 +1,9 @@
 const MODELS = {
-    "LLaMA 3 8B (Technical)": "meta-llama/Llama-3-8B",
-    "Mixtral 8x7B (Math)": "mistralai/Mixtral-8x7B",
-    "DeepSeek Coder (Coding)": "deepseek-ai/deepseek-coder"
+    "DeepSeek R1 Distill Llama 70B Free": "deepseek-ai/deepseek-r1-distill-70b",
+    "Meta Llama 3.3 70B Instruct Turbo Free": "meta-llama/Llama-3.3-70B-Turbo"
 };
 
-let currentModel = MODELS["LLaMA 3 8B"];
+let currentModel = MODELS["DeepSeek R1 Distill Llama 70B Free"];
 
 document.addEventListener("mouseup", () => {
     let selectedText = window.getSelection().toString().trim();
@@ -48,9 +47,11 @@ function showPopup(text) {
 
 async function fetchAIResponse(text) {
     const API_URL = "https://api.together.xyz/v1/chat/completions";
-    const API_KEY = "780437c01a5188d9c13c01ce103fa48da5065a8d099737ef6831a50114f47b33"; // Replace with actual key
+    const API_KEY = "780437c01a5188d9c13c01ce103fa48da5065a8d099737ef6831a50114f47b33"; // Replace with your actual Together AI API key
 
     const responseBox = document.getElementById("cheatai-response");
+    responseBox.innerText = "Thinking...";
+    responseBox.style.height = "auto"; // Reset height before response starts
 
     try {
         let response = await fetch(API_URL, {
@@ -60,22 +61,37 @@ async function fetchAIResponse(text) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "mistralai/Mixtral-8x7B-Instruct",  // Use "meta-llama/Llama-3-8B-Instruct" or "deepseek-ai/deepseek-coder" if needed
-                messages: [{ role: "system", content: "You are a helpful AI assistant." },
-                            { role: "user", content: text }],
+                model: currentModel,
+                messages: [
+                    { role: "system", content: "You are a helpful AI assistant." },
+                    { role: "user", content: text }
+                ],
                 temperature: 0.7,
-                max_tokens: 300,
-                top_p: 1
+                max_tokens: 500,
+                top_p: 1,
+                stream: true
             })
         });
 
-        let data = await response.json();
-
         if (!response.ok) {
-            throw new Error(`Error ${response.status}: ${data.error?.message || "Invalid request"}`);
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
-        responseBox.innerText = data.choices?.[0]?.message?.content || "No response.";
+        let reader = response.body.getReader();
+        let decoder = new TextDecoder();
+        let finalText = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            let chunk = decoder.decode(value, { stream: true });
+            finalText += chunk;
+            responseBox.innerText = finalText;
+
+            // Dynamically adjust height as content loads
+            responseBox.style.height = `${responseBox.scrollHeight}px`;
+        }
+
     } catch (error) {
         console.error("Error:", error);
         responseBox.innerText = `Error: ${error.message}`;

@@ -5,7 +5,7 @@
     width: 350px;
     background: #222;
     color: white;
-    border-radius: 8px;
+    border-radius: 12px;
     padding: 10px;
     font-family: Arial, sans-serif;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
@@ -16,7 +16,7 @@
 
 #cheatai-header {
     cursor: grab;
-    background: #444;
+    background: #595656;
     padding: 8px;
     display: flex;
     justify-content: space-between;
