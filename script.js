@@ -47,8 +47,7 @@ function showPopup(text) {
 
 async function fetchAIResponse(text) {
     const API_URL = "https://api.together.xyz/v1/chat/completions";
-    const API_KEY = "780437c01a5188d9c13c01ce103fa48da5065a8d099737ef6831a50114f47b33"; // Replace with your actual Together AI API key
-
+    const API_KEY = "780437c01a5188d9c13c01ce103fa48da5065a8d099737ef6831a50114f47b33"; 
     const responseBox = document.getElementById("cheatai-response");
     responseBox.innerText = "Thinking...";
     responseBox.style.height = "auto"; // Reset height before response starts
@@ -68,29 +67,20 @@ async function fetchAIResponse(text) {
                 ],
                 temperature: 0.7,
                 max_tokens: 500,
-                top_p: 1,
-                stream: true
+                top_p: 1
             })
         });
 
         if (!response.ok) {
-            throw new Error(`${response.status}: ${response.statusText}`);
+            let errorData = await response.json();
+            throw new Error(`Error ${response.status}: ${errorData.error?.message || "Invalid request"}`);
         }
 
-        let reader = response.body.getReader();
-        let decoder = new TextDecoder();
-        let finalText = "";
+        let data = await response.json();
+        responseBox.innerText = data.choices?.[0]?.message?.content || "No response.";
 
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            let chunk = decoder.decode(value, { stream: true });
-            finalText += chunk;
-            responseBox.innerText = finalText;
-
-            // Dynamically adjust height as content loads
-            responseBox.style.height = `${responseBox.scrollHeight}px`;
-        }
+        // Dynamically adjust height as content loads
+        responseBox.style.height = `${responseBox.scrollHeight}px`;
 
     } catch (error) {
         console.error("Error:", error);
