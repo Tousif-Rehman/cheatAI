@@ -1,7 +1,7 @@
 const MODELS = {
-    "LLaMA 3 8B(Technical)": "meta-llama/Llama-3-8B",
-    "Mixtral 8x7B(Math)": "mistralai/Mixtral-8x7B",
-    "DeepSeek Coder(Coding)": "deepseek-ai/deepseek-coder"
+    "LLaMA 3 8B (Technical)": "meta-llama/Llama-3-8B",
+    "Mixtral 8x7B (Math)": "mistralai/Mixtral-8x7B",
+    "DeepSeek Coder (Coding)": "deepseek-ai/deepseek-coder"
 };
 
 let currentModel = MODELS["LLaMA 3 8B"];
