@@ -1,0 +1,35 @@
+#cheatai-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 350px;
+    background: #222;
+    color: white;
+    border-radius: 8px;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    user-select: none;
+    display: none;
+}
+
+#cheatai-header {
+    cursor: grab;
+    background: #444;
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px 8px 0 0;
+}
+
+#cheatai-close {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#cheatai-response {
+    padding: 10px;
+    min-height: 60px;
+}
