@@ -1,12 +1,11 @@
-const OPENAI_API_KEY = ""; // Replace with your actual key
 const API_URL = "https://api.openai.com/v1/chat/completions";
+const MODEL = "gpt-4-turbo";
 
-const MODELS = {
-    "GPT-4 Turbo": "gpt-4-turbo",
-    "GPT-3.5 Turbo": "gpt-3.5-turbo"
-};
+let OPENAI_API_KEY = localStorage.getItem("openai_api_key");
 
-let currentModel = MODELS["GPT-4 Turbo"];
+if (!OPENAI_API_KEY) {
+    alert("⚠️ OpenAI API Key not found! Please set it using localStorage.\n\nOpen DevTools (F12) -> Console and run:\nlocalStorage.setItem('openai_api_key', 'your-secret-key-here');");
+}
 
 document.addEventListener("mouseup", () => {
     let selectedText = window.getSelection().toString().trim();
@@ -24,9 +23,6 @@ function showPopup(text) {
         popup.innerHTML = `
             <header id="cheatai-header">
                 CheatAI 
-                <select id="model-select">
-                    ${Object.keys(MODELS).map(model => `<option value="${MODELS[model]}">${model}</option>`).join("")}
-                </select>
                 <span id="cheatai-close">×</span>
             </header>
             <div id="cheatai-response">Thinking...</div>
@@ -34,23 +30,19 @@ function showPopup(text) {
         document.body.appendChild(popup);
 
         document.getElementById("cheatai-close").onclick = () => popup.style.display = "none";
-        document.getElementById("model-select").onchange = (e) => {
-            currentModel = e.target.value;
-        };
-
         makePopupDraggable(popup);
     }
 
     popup.style.display = "block";
     popup.style.bottom = "20px";
     popup.style.right = "20px";
-
+    
     fetchAIResponse(text);
 }
 
 async function fetchAIResponse(text) {
     const responseBox = document.getElementById("cheatai-response");
-    responseBox.innerText = ""; // Clear previous text
+    responseBox.innerHTML = ""; // Clear previous response
 
     try {
         const response = await fetch(API_URL, {
@@ -60,30 +52,41 @@ async function fetchAIResponse(text) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: currentModel,
-                messages: [{ role: "system", content: "You are a helpful AI assistant." },
-                            { role: "user", content: text }],
+                model: MODEL,
+                messages: [{ role: "system", content: "You are a helpful assistant." },
+                           { role: "user", content: text }],
                 temperature: 0.7,
-                stream: true // Enable streaming
+                max_tokens: 500,
+                stream: true,  // Enable streaming
             })
         });
 
-        if (!response.ok) {
-            throw new Error(`Error ${response.status}: ${await response.text()}`);
-        }
+        if (!response.ok) throw new Error(`Error ${response.status}`);
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let partialText = "";
+        let accumulatedText = "";
 
         while (true) {
-            const { value, done } = await reader.read();
+            const { done, value } = await reader.read();
             if (done) break;
-            partialText += decoder.decode(value, { stream: true });
-            responseBox.innerText = partialText;
-            responseBox.scrollTop = responseBox.scrollHeight; // Auto-scroll as text appears
-        }
 
+            let chunk = decoder.decode(value, { stream: true });
+
+            try {
+                chunk.split("\n").forEach(line => {
+                    if (line.startsWith("data:")) {
+                        let jsonData = JSON.parse(line.substring(5));
+                        let newText = jsonData.choices[0]?.delta?.content || "";
+                        accumulatedText += newText;
+                        responseBox.innerHTML = accumulatedText;
+                        responseBox.style.maxHeight = "none"; // Expand dynamically
+                    }
+                });
+            } catch (e) {
+                console.error("Streaming Error:", e);
+            }
+        }
     } catch (error) {
         console.error("Error:", error);
         responseBox.innerText = `Error: ${error.message}`;
@@ -92,7 +95,6 @@ async function fetchAIResponse(text) {
 
 function makePopupDraggable(popup) {
     let header = popup.querySelector("#cheatai-header");
-
     let offsetX = 0, offsetY = 0, isDragging = false;
 
     header.onmousedown = (e) => {
