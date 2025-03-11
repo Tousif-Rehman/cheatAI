@@ -54,7 +54,7 @@ async function fetchAIResponse(text) {
             body: JSON.stringify({
                 model: MODEL,
                 messages: [{ role: "system", content: "You are a helpful assistant." },
-                           { role: "user", content: text }],
+                            { role: "user", content: text }],
                 temperature: 0.7,
                 max_tokens: 500,
                 stream: true,  // Enable streaming
