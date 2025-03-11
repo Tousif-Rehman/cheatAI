@@ -1,5 +1,12 @@
-const API_URL = "https://api.kimi.com/v1/chat/completions";  // Replace with actual Kimi AI API URL
-const API_KEY = "sk-HumsdF8LOzx347MH6pfZquV1iG5cfPQywq0NKnQNUs4qSMzQ";  // Replace with your actual API key
+const OPENAI_API_KEY = ""; // Replace with your actual key
+const API_URL = "https://api.openai.com/v1/chat/completions";
+
+const MODELS = {
+    "GPT-4 Turbo": "gpt-4-turbo",
+    "GPT-3.5 Turbo": "gpt-3.5-turbo"
+};
+
+let currentModel = MODELS["GPT-4 Turbo"];
 
 document.addEventListener("mouseup", () => {
     let selectedText = window.getSelection().toString().trim();
@@ -17,6 +24,9 @@ function showPopup(text) {
         popup.innerHTML = `
             <header id="cheatai-header">
                 CheatAI 
+                <select id="model-select">
+                    ${Object.keys(MODELS).map(model => `<option value="${MODELS[model]}">${model}</option>`).join("")}
+                </select>
                 <span id="cheatai-close">×</span>
             </header>
             <div id="cheatai-response">Thinking...</div>
@@ -24,6 +34,10 @@ function showPopup(text) {
         document.body.appendChild(popup);
 
         document.getElementById("cheatai-close").onclick = () => popup.style.display = "none";
+        document.getElementById("model-select").onchange = (e) => {
+            currentModel = e.target.value;
+        };
+
         makePopupDraggable(popup);
     }
 
@@ -36,48 +50,40 @@ function showPopup(text) {
 
 async function fetchAIResponse(text) {
     const responseBox = document.getElementById("cheatai-response");
-    responseBox.innerText = "Thinking...";
+    responseBox.innerText = ""; // Clear previous text
 
     try {
-        let response = await fetch(API_URL, {
+        const response = await fetch(API_URL, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${API_KEY}`,
+                "Authorization": `Bearer ${OPENAI_API_KEY}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "kimi-default-model",  // Replace with the correct Kimi model
-                messages: [
-                    { role: "system", content: "You are a helpful AI assistant." },
-                    { role: "user", content: text }
-                ],
+                model: currentModel,
+                messages: [{ role: "system", content: "You are a helpful AI assistant." },
+                            { role: "user", content: text }],
                 temperature: 0.7,
-                max_tokens: 300,
-                stream: true  // Enable streaming
+                stream: true // Enable streaming
             })
         });
 
         if (!response.ok) {
-            let errorData = await response.json();
-            throw new Error(`Error ${response.status}: ${errorData.error?.message || "Invalid request"}`);
+            throw new Error(`Error ${response.status}: ${await response.text()}`);
         }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let resultText = "";
-
-        responseBox.innerText = ""; // Clear initial "Thinking..." text
+        let partialText = "";
 
         while (true) {
-            const { done, value } = await reader.read();
+            const { value, done } = await reader.read();
             if (done) break;
-
-            let chunk = decoder.decode(value, { stream: true });
-            resultText += chunk;
-
-            responseBox.innerText = resultText; // Update dynamically
-            responseBox.style.maxHeight = "none"; // Expand as needed
+            partialText += decoder.decode(value, { stream: true });
+            responseBox.innerText = partialText;
+            responseBox.scrollTop = responseBox.scrollHeight; // Auto-scroll as text appears
         }
+
     } catch (error) {
         console.error("Error:", error);
         responseBox.innerText = `Error: ${error.message}`;
