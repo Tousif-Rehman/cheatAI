@@ -1,9 +1,9 @@
 const MODELS = {
-    "DeepSeek R1 Distill Llama 70B Free": "deepseek-ai/deepseek-r1-distill-70b",
-    "Meta Llama 3.3 70B Instruct Turbo Free": "meta-llama/Llama-3.3-70B-Turbo"
+    "DeepSeek R1": "deepseek-ai/deepseek-r1-distill-70b",
+    "Meta Llama 3.3": "meta-llama/Llama-3.3-70B-Turbo"
 };
 
-let currentModel = MODELS["DeepSeek R1 Distill Llama 70B Free"];
+let currentModel = MODELS["DeepSeek R1"];
 
 document.addEventListener("mouseup", () => {
     let selectedText = window.getSelection().toString().trim();
@@ -74,7 +74,7 @@ async function fetchAIResponse(text) {
         });
 
         if (!response.ok) {
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
+            throw new Error(`${response.status}: ${response.statusText}`);
         }
 
         let reader = response.body.getReader();
