@@ -1,18 +1,51 @@
-# CheatAI - Floating AI Assistant
+# **CheatAI - Floating AI Assistant**  
+CheatAI is a **floating AI assistant** that overlays on web pages, detects selected text, and provides AI-generated responses using **Together AI's free models**.  
 
-CheatAI is a browser extension that provides a floating AI assistant powered by Together AI.
+## **🚀 Features**
+- 🧠 **AI-powered** responses (LLaMA 3, Mixtral, DeepSeek Coder)  
+- 🎭 **Draggable & resizable** floating UI  
+- 📝 **Auto-detects selected text**  
+- 🔄 **Switch between AI models dynamically**  
 
-## Features:
-- **Floating, draggable AI assistant**
-- **Select text on any webpage to open CheatAI**
-- **Switch between free AI models:**
-  - LLaMA 3 (8B)
-  - Mixtral (8x7B)
-  - DeepSeek Coder (33B)
+---
 
-## Installation:
-1. Download the `cheatAI` folder.
-2. Open Chrome and go to `chrome://extensions/`.
-3. Enable **Developer Mode**.
-4. Click **Load Unpacked** and select the `cheatAI` folder.
-5. Select any text on a webpage to trigger CheatAI.
+## **📂 Project Structure**
+```
+/cheatai
+  ├── index.html       # Main HTML structure
+  ├── script.js        # AI logic & popup behavior
+  ├── style.css        # Styling for the floating UI
+  ├── vercel.json      # Vercel deployment config
+  ├── README.md        # Project documentation
+```
+
+---
+
+## **🛠 Setup & Usage**  
+### **1️⃣ Deploy on Vercel**  
+#### **Option 1: Using Vercel CLI**  
+```sh
+npm install -g vercel
+vercel deploy --prod
+```
+#### **Option 2: Manually via GitHub**  
+1. Upload files to a GitHub repository  
+2. Connect it to Vercel  
+3. Deploy & get your **Live URL**  
+
+### **2️⃣ Embed CheatAI on Any Website**  
+Add this to your website's `<head>`:  
+```html
+<script src="https://cheatai.vercel.app/script.js"></script>
+<link rel="stylesheet" href="https://cheatai.vercel.app/style.css">
+```
+
+---
+
+## **⚡ How It Works**
+1. **Select text** on any webpage  
+2. **CheatAI detects it** and sends it to **Together AI API**  
+3. **Floating popup appears** with AI-generated results  
+4. **Switch models** for different AI responses  
+
+---

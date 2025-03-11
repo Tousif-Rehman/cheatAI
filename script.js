@@ -1,7 +1,7 @@
 const MODELS = {
-    "LLaMA 3 8B": "meta-llama/Llama-3-8B",
-    "Mixtral 8x7B": "mistralai/Mixtral-8x7B",
-    "DeepSeek Coder": "deepseek-ai/deepseek-coder"
+    "LLaMA 3 8B(Technical)": "meta-llama/Llama-3-8B",
+    "Mixtral 8x7B(Math)": "mistralai/Mixtral-8x7B",
+    "DeepSeek Coder(Coding)": "deepseek-ai/deepseek-coder"
 };
 
 let currentModel = MODELS["LLaMA 3 8B"];
@@ -47,7 +47,7 @@ function showPopup(text) {
 }
 
 function fetchAIResponse(text) {
-    const apiKey = "YOUR_TOGETHER_AI_API_KEY"; // Replace with your actual API key
+    const apiKey = "780437c01a5188d9c13c01ce103fa48da5065a8d099737ef6831a50114f47b33"; 
     const endpoint = "https://api.together.xyz/v1/chat/completions";
 
     fetch(endpoint, {
