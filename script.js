@@ -46,31 +46,40 @@ function showPopup(text) {
     fetchAIResponse(text);
 }
 
-function fetchAIResponse(text) {
-    const apiKey = "780437c01a5188d9c13c01ce103fa48da5065a8d099737ef6831a50114f47b33"; 
-    const endpoint = "https://api.together.xyz/v1/chat/completions";
+async function fetchAIResponse(text) {
+    const API_URL = "https://api.together.xyz/v1/chat/completions";
+    const API_KEY = "780437c01a5188d9c13c01ce103fa48da5065a8d099737ef6831a50114f47b33"; // Replace with actual key
 
-    fetch(endpoint, {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            model: currentModel,
-            messages: [{ role: "user", content: text }],
-            max_tokens: 150
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        let reply = data.choices?.[0]?.message?.content || "No response.";
-        document.getElementById("cheatai-response").innerText = reply;
-    })
-    .catch(error => {
+    const responseBox = document.getElementById("cheatai-response");
+
+    try {
+        let response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "mistralai/Mixtral-8x7B-Instruct",  // Use "meta-llama/Llama-3-8B-Instruct" or "deepseek-ai/deepseek-coder" if needed
+                messages: [{ role: "system", content: "You are a helpful AI assistant." },
+                            { role: "user", content: text }],
+                temperature: 0.7,
+                max_tokens: 300,
+                top_p: 1
+            })
+        });
+
+        let data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${data.error?.message || "Invalid request"}`);
+        }
+
+        responseBox.innerText = data.choices?.[0]?.message?.content || "No response.";
+    } catch (error) {
         console.error("Error:", error);
-        document.getElementById("cheatai-response").innerText = "Error fetching response.";
-    });
+        responseBox.innerText = `Error: ${error.message}`;
+    }
 }
 
 function makePopupDraggable(popup) {
